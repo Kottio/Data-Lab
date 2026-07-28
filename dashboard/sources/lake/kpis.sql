@@ -1,0 +1,1 @@
+select * from mart_kpis_weekly

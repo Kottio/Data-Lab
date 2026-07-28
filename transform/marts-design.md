@@ -18,7 +18,20 @@
 
 **Definitions ✎:** conversion = a row in `payment` · source: `bridge_*` events → `tik_tok`, else `other` ·
 **activated = viewed ≥1 lesson** (`progress`); activation moment = first lesson access; never-activated = `lessons_viewed = 0` ·
-"engaged" = **TBD** (pick the threshold from the real distribution in `mart_conversion_drivers`)
+**"engaged" — the distribution, read 28/07** (97 students):
+
+| lessons viewed | students | of which PAID |
+|---|---|---|
+| 0 | 43 | 1 |
+| 1–2 | 20 | 1 |
+| 3–5 | 19 | 1 |
+| 6 | 10 | 0 |
+| 7+ | 5 | **5** |
+
+The free module is 6 lessons — the plateau at 6 is the ceiling of the free tier, and the whole
+7+ bucket is paid students reading paid content. So **engaged = viewed ≥ 3 of the 6 free lessons**
+(half the free module): 29 students, a real cohort, entirely inside the free tier.
+Anything above 6 is not a driver of conversion — it *is* conversion.
 
 ## Drill-downs (off-dashboard, opened when a core number looks wrong)
 
@@ -37,9 +50,12 @@ raw (dlt: students, event, progress, enrollments, payments)
  └─ marts     dim_student         grain: student — attributes only
               — access_type (1:1 enrollment, single course), acquisition_source
                 (retroactive stitching via persistent sessionId, as internal CTE)
-              mart_kpis_weekly    grain: week × source → Q1, Q2 (Q6 revenue col to add)
-              mart_conversion_drivers  grain: student — features + is_activated + converted → Q3, Q4 👑, Q5*
-              [tables, marts schema]                     *Q5 pending the "engaged" threshold
+              mart_kpis_weekly    grain: cohort_week × source → Q1, Q2
+              mart_conversion_drivers  grain: student — features + is_activated + converted → Q3, Q4 👑, Q5
+              mart_revenue_weekly grain: payment_week → Q6
+              — payment week ≠ cohort week: revenue in mart_kpis_weekly would break its grain.
+                Built 28/07 because Evidence reads it (consumer test passed).
+              [tables, marts schema]
 ```
 
 ## Deferred until a consumer exists (the over-modeling lesson, 28/07)
@@ -54,12 +70,21 @@ event-grain or needs a date spine — built then, as a documented step, not as s
   "New visitors" = first-seen cohort; weekly *traffic* would count browsers per week.
 - `progress` is a **state** table (first/last touch only — revisits overwritten at source).
   True lesson-view actions need an app-side `lesson_view` event (instrumentation backlog).
+- ⚠️ **Outcome leakage in `lessons_viewed`:** it counts lessons viewed at *any* time, including
+  after payment. Every 7+ student is PAID — so the column cannot be used to predict conversion.
+  Fix when Q4 goes from describing to explaining: `lessons_before_payment` = distinct lessons with
+  `created_at < coalesce(first_payment_at, '9999-12-31')`.
+- ⚠️ **`access_type` is current state, not state-at-the-time.** A student who converts flips to PAID,
+  so "engaged FREE students who converted" is 0 by construction. Cohort on signup, not on access_type.
+- ⚠️ **8 students are PAID, 7 have a payment row.** One comped/manual access (13 lessons, €0).
+  Expected, but it means `access_type = 'PAID'` ≠ `converted`. `converted` is the money truth.
 - ⚠️ **PII hole open:** emails inside `event.properties` JSON (`lead_email_captured`, signup).
   Patch the events `add_map` (hash/drop keys) + rebuild ritual — **before Evidence ships.**
 
 ## Next
 
-1. PII patch + rebuild
-2. Evidence dashboard on the two marts (Phase 6) — decide both ✎ definitions with the
-   distributions on screen
-3. Dagster (Phase 4) → CI → droplet
+1. PII patch + rebuild — **before the dashboard is public**
+2. ✅ Evidence dashboard on the marts (Phase 6) — the core six on one page; both ✎ definitions
+   settled from the distributions on screen
+3. `lessons_before_payment` when Q4 must explain, not describe
+4. Dagster (Phase 4) → CI → droplet

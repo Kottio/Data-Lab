@@ -24,16 +24,38 @@
 
 ## 📍 Next step (updated each session)
 
-**2026-07-22 (soir) → Phase 2 OPEN: first real table (`students`) extracted from Neon.** 🎉
+**2026-07-28 → Phase 6: the dashboard now has a system behind it.**
 
-1. Verify in the lake: `just tables` — confirm `students` + `_dlt_*` landed in the raw schema.
-2. Decide the full table list from Neon (`\dt`) — per table: incremental cursor? PII columns?
-   (PII pseudonymization at ingestion — it's students' data.)
-3. Set a stable `dataset_name` (e.g. `raw`) in the pipeline — no dev_mode, ever.
-4. Then Phase 3 opens: `transform/` dbt project — env_var() attach, scratch db ≠ alias,
-   generate_schema_name override, first staging model on `students`.
-5. Housekeeping: rotate the analytics_ro password (it transited chat/shell history) ·
-   trim ingestion/.gitignore to the dlt-specific head · commit the day's harvest.
+The first version of the page was rejected — too long, not clear enough. The answer was
+not a nicer page but a repo skill: `.claude/skills/evidence-dashboard/` (SKILL.md +
+domain / evidence-syntax / design-rules references). Any Claude session opened in this
+repo loads it automatically. The home page budget it enforces: **≤5 KPIs, ≤3 charts,
+0 tables, no scroll** — everything else goes to a linked drill-down.
+
+Pages now: `index.md` (the funnel in five numbers + traffic + revenue),
+`growth.md` (Q1/Q2/Q3), `conversion.md` (Q5/Q6, and why Q4 is not chartable yet).
+The colour palette was measured and replaced — the old one failed four of five
+colour-vision checks.
+
+Run order after any model change: `just transform` → `just publish` → `just dashboard`
+(close the `just lakehouse` session first — file lock).
+
+1. **Run `just transform` + `just publish`.** `mart_revenue_weekly` is not in the
+   published snapshot yet, so every revenue query on the pages is **unverified**. All
+   other queries were run against the snapshot and pass (683 → 97 → 54 → 7).
+2. **PII patch — blocking before anything is public.** Hash/drop the email keys inside
+   `event.properties` in the events `add_map`, then `just rebuild`.
+3. Switch `just transform` to `dbt build` — the schema.yml tests currently never run.
+4. `lessons_before_payment` in `mart_conversion_drivers` — this is what unblocks Q4,
+   the question that pays the bills (see the leakage note in `transform/marts-design.md`).
+5. Confirm `payment.amount` is minor units (cents) — `mart_revenue_weekly` divides by 100.
+6. Rename `stg_enrollements` → `stg_enrollments`; commit the multi-day harvest;
+   `git rm -r --cached` the old `Notes/` paths; rotate the `analytics_ro` password.
+7. Then Phase 4: Dagster → CI → droplet (last).
+
+**Open question raised by the data, not by the plan:** `tik_tok` sends 277 visitors at a
+9.4% signup rate; `other` sends 406 at 16.0%. The bridge brings volume and worse intent.
+Worth a decision before more is invested in it.
 
 ## Architecture
 

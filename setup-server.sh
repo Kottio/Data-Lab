@@ -15,3 +15,7 @@ brew install just              # droplet: apt install just  (or prebuilt binary)
 
 # dbt Fusion (pinned 2.0.0-preview.196 — .200 untested beyond the exam, upgrade deliberately)
 curl -fsSL https://public.cdn.getdbt.com/fs/install/install.sh | sh
+
+#evidence.dev dashboard
+npx degit evidence-dev/template dashboard --force
+cd dashboard && npm install

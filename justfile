@@ -22,12 +22,17 @@ xray:
 ingest:
     uv run python ingestion/postgres_dlt.py
 
-# --- coming with its phase (organic rule) ---
-# transform:   dbt run --project-dir transform
+# Publish marts -> plain duckdb file for Evidence (the "shop window")
+publish:
+    ./infra/publish-for-dash.sh
 
-transform: 
+# Run the Evidence dev server (after: just publish)
+dashboard:
+    cd dashboard && npm run sources && npm run dev
+
     dbt run --project-dir transform
     
+transform: 
 transform-debug: 
     dbt debug --project-dir transform
 

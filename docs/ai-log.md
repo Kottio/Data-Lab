@@ -121,3 +121,76 @@ MCP door actually consumes them — built on camera, as a curriculum module, not
 **Lesson:** pattern-matching to "best practice" architecture is a form of AI hallucination too —
 the org-chart of a big warehouse imposed on a one-course platform. The consumer test
 (who reads this model?) beats the pattern every time. Human simplicity instinct: 3, AI architecture: 0.
+
+## Phase 6 — the dashboard puts the numbers on screen — 2026-07-28
+
+**Task:** build the Evidence page for the core six on top of the published marts.
+
+**What worked:** the marts held. Five of the six questions answered with columns that already
+existed — no new modeling needed to draw them. Evidence's constraint (its DuckDB connector
+autoloads only *default* extensions, so it cannot ATTACH a DuckLake) turned into a clean
+boundary: `just publish` copies marts into a plain `dashboard.duckdb`. The dashboard reads a
+snapshot, and the refresh is one word.
+
+**What the screen exposed — the real value of the phase:**
+
+1. **Outcome leakage.** `lessons_viewed` counts lessons at any time, including after payment.
+   Plot it and the 7+ bucket is *entirely* PAID students — the "driver" of conversion turned out
+   to be a consequence of it. A number that looked like an insight was a tautology.
+2. **A grain trap avoided.** Q6 (revenue) does not belong in `mart_kpis_weekly`: payment week is
+   not cohort week. New 8-line `mart_revenue_weekly` instead — built because a consumer finally
+   asked for it, which is the rule.
+3. **State vs state-at-the-time.** `access_type` flips to PAID on conversion, so "engaged FREE
+   students who converted" is 0 by construction. Cohort on signup, never on current state.
+4. **The engaged threshold settled itself.** The distribution has a plateau at 6 (the free module)
+   and a gap to 13+. Engaged = ≥3 of the 6 free lessons — decided by looking, not by guessing.
+
+**Where the AI went wrong:** it first shipped `just publish` as a multi-line escaped SQL string
+inside the justfile — unreadable and fragile enough that Tom commented it out. Moved to
+`infra/publish.sh`, same shape as `ducklake-setup.sh`. Shell belongs in shell files.
+
+**Lesson:** a dashboard is not the end of modeling, it is the audit of it. Four modeling defects
+were invisible in SQL review and obvious the moment a chart was drawn. Build the view early —
+it interrogates the models better than any test.
+
+### The dashboard got rejected, and that produced the skill — 2026-07-28
+
+I built a page that answered all six questions: five KPIs, six sections, three tables,
+a footer. Tom's verdict: *"the dashboard is bad, too long, not clear enough."* He was
+right, and the failure mode was the same one as the over-modelling incident earlier in
+the project — the AI adding volume where clarity was asked for. Comprehensiveness is
+the easy thing to produce and the wrong thing to want.
+
+The fix was not a better page. It was a **system**: `.claude/skills/evidence-dashboard/`,
+which any Claude session opening this repo now loads automatically. Four files:
+
+- `SKILL.md` — an eight-step procedure, a page budget (`index.md` = ≤5 KPIs, ≤3 charts,
+  0 tables), and a definition-of-done checklist.
+- `references/domain.md` — the frozen questions, the mart contracts with grains and
+  column lists, the settled definitions, and seven traps in this data.
+- `references/evidence-syntax.md` — component inventory and prop lists verified against
+  the docs, not remembered. The rule written into it: *if a prop is not in this file,
+  do not guess it.*
+- `references/design-rules.md` — job→form table, series-count ladder, colour
+  non-negotiables, anti-patterns.
+
+Two things worth recording:
+
+**The palette was wrong and nobody could have seen it by looking.** Running the
+validator on `evidence.config.yaml` failed four of five checks — worst adjacent pair at
+ΔE 4.6 under protanopia, and 7.3 even for normal vision against a hard floor of 15. Two
+series on a chart were effectively the same colour for everyone. Replaced with a
+measured palette that passes in both light and dark. Lesson: colour is computable, so
+compute it.
+
+**Verification found the real limit of the device VM.** No `duckdb` CLI, and the
+`node_modules` duckdb binding is darwin-arm64 while the bridge VM is linux-arm64. So the
+snapshot was staged into the cloud container and every query on the new pages was run
+against it there. Result: index, growth and conversion queries all pass and return the
+funnel we expect (683 → 97 → 54 → 7). The revenue queries could **not** be verified —
+`mart_revenue_weekly` does not exist in the published snapshot yet, because
+`just transform` + `just publish` have not run since the model was added.
+
+**One finding the charts surfaced immediately:** `tik_tok` converts visits to signups at
+9.4% against 16.0% for `other`. The bridge brings volume (277 visitors) and worse
+intent. That is a Q2 answer that changes what to do next week, which is the whole test.

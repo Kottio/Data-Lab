@@ -1,0 +1,77 @@
+appearance:
+  default: system
+  switcher: true
+
+theme:
+  colorPalettes:
+    default:
+      light:
+        - "#2a78d6"
+        - "#008300"
+        - "#e87ba4"
+        - "#eda100"
+        - "#1baf7a"
+        - "#eb6834"
+        - "#4a3aa7"
+        - "#e34948"
+      dark:
+        - "#3987e5"
+        - "#008300"
+        - "#d55181"
+        - "#c98500"
+        - "#199e70"
+        - "#d95926"
+        - "#9085e9"
+        - "#e66767"
+  colorScales:
+    default:
+      light:
+        - "#ADD8E6"
+        - "#00008B"
+      dark:
+        - "#ADD8E6"
+        - "#00008B"
+  colors:
+    primary:
+      light: "#2563eb"
+      dark: "#3b82f6"
+    accent:
+      light: "#c2410c"
+      dark: "#fdba74"
+    base:
+      light: "#ffffff"
+      dark: "#09090b"
+    info:
+      light: "#0284c7"
+      dark: "#38bdf8"
+    positive:
+      light: "#16a34a"
+      dark: "#4ade80"
+    warning:
+      light: "#f8c900"
+      dark: "#fbbf24"
+    negative:
+      light: "#dc2626"
+      dark: "#f87171"
+
+plugins:
+  components:
+    # This loads all of evidence's core charts and UI components
+    # You probably don't want to edit this dependency unless you know what you are doing
+    "@evidence-dev/core-components": {}
+
+  datasources:
+    # You can add additional datasources here by adding npm packages. 
+    # Make to also add them to `package.json`.
+    "@evidence-dev/bigquery": { }
+    "@evidence-dev/csv": { }
+    "@evidence-dev/databricks": { }
+    "@evidence-dev/duckdb": { }
+    "@evidence-dev/mssql": { }
+    "@evidence-dev/mysql": { }
+    "@evidence-dev/postgres": { }
+    "@evidence-dev/source-javascript": { }
+    "@evidence-dev/snowflake": { }
+    "@evidence-dev/sqlite": { }
+    "@evidence-dev/trino": { }
+    "@evidence-dev/motherduck": { }

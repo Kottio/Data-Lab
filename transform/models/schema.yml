@@ -16,3 +16,8 @@ models:
     columns:
       - name: student_id
         tests: [unique, not_null]
+  - name: mart_revenue_weekly
+    description: One row per payment week — the revenue scoreboard (Q6).
+    columns:
+      - name: payment_week
+        tests: [unique, not_null]
