@@ -1,0 +1,1 @@
+SELECT id as enrollment_id, student_id, access_type, enrolled_at,updated_at FROM {{ source('lake', 'enrollments')}}

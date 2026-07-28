@@ -1,5 +1,4 @@
-# DBuilders Pipeline — every operation the project supports, as named recipes.
-# `just` alone lists them. Recipes always run from the repo root, with .env loaded.
+# DBuilders Pipeline
 
 set dotenv-load
 
@@ -19,10 +18,23 @@ tables:
 xray:
     duckdb $LAKE_CATALOG -c "SELECT key, value FROM ducklake_metadata;"
 
-
 # Run ingestion (Neon -> lake; credentials & catalog from .env)
 ingest:
-    uv run python ingestion/sql_database_pipeline.py
+    uv run python ingestion/postgres_dlt.py
 
 # --- coming with its phase (organic rule) ---
 # transform:   dbt run --project-dir transform
+
+transform: 
+    dbt run --project-dir transform
+    
+transform-debug: 
+    dbt debug --project-dir transform
+
+
+# Full rebuild: nuke lake, reset cursors, re-ingest from Neon (PII policy changes require this)
+rebuild:
+    rm -rf data
+    ./infra/ducklake-setup.sh
+    uv run dlt pipeline dba_ingest drop
+    uv run python ingestion/postgres_dlt.py

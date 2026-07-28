@@ -1,0 +1,1 @@
+SELECT id as student_id, user_id, created_at, updated_at FROM {{ source('lake', 'students')}}

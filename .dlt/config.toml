@@ -5,5 +5,8 @@ log_level="WARNING"  # the system log level of dlt
 # use the dlthub_telemetry setting to enable/disable anonymous usage data reporting, see https://dlthub.com/docs/reference/telemetry
 dlthub_telemetry = true
 
-[sources.sql_database]
-table = "students" # fill this in!
+[sources.sql_database.students]
+included_columns = ["id","user_id", "created_at", "updated_at"]
+
+[sources.sql_database.payments]
+included_columns = ["id","student_id", "enrollment_id", "amount", "currency","status", "created_at"]

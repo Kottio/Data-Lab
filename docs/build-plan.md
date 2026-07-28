@@ -203,6 +203,16 @@ Skills applied: BI-as-code · metric communication · stakeholder-facing deliver
 
 ## Phase 7 — Delivery II: semantic layer + MCP (the "for AI" proof)
 
+> **Design decided 23/07 — "the AI gets doors, not keys to the building"** (future ADR: `ai-access-doors`).
+> AI consumers blur analytical vs operational: they get **scoped tools**, never raw lake access.
+> - **Semantic/lake door** — broad questions, zero PII, generous access (the pseudonymized lake enables this).
+> - **Resolution door** — privileged & narrow: `resolve_students(ids) → [{id, name, email}]`, its own Neon role
+>   (identity columns only), hard batch cap, every call logged (= GDPR access register), granted per-assistant
+>   (internal CS agent: yes · public demo: never).
+> - Later doors (draft-email, Stripe-lookup…) each with own credentials & blast radius.
+> The AI's intelligence = composing doors; our governance = scoping them. Enabled by the PII-free lake — nothing to undo.
+
+
 Elements to put in place:
 
 1. Semantic definitions for the ~10 core metrics (revenue, active students, completion rate, ...): dimensions, grains, time aggregations. Options: dbt MetricFlow definitions, or a lean YAML metrics spec of your own if MetricFlow × duckdb friction is too high — evaluate and **document the decision** either way.

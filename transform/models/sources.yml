@@ -1,0 +1,10 @@
+sources:
+  - name: lake
+    database: lake
+    schema: raw
+    tables:
+      - name: students
+      - name: progress
+      - name: event
+      - name: enrollments
+      - name: payments

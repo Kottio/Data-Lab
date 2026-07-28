@@ -109,3 +109,15 @@ views live in the catalog · tables live as Parquet
 **Teaching gold found in an error:** dlt's ConfigFieldMissing traceback prints its entire provider lookup chain (every env spelling, every toml path, in order) — the config system documenting itself at failure time.
 
 **Env inheritance lesson:** `.env` without `export` + plain `source` = variables invisible to child processes; `just`'s dotenv-load (or the `set -a` sandwich) is what actually delivers them. Why the same command works via just and fails bare.
+
+## Over-modeling caught — 2026-07-28
+
+**What happened:** the AI scaffolded a 14-model "proper star schema" — and its own marts didn't
+use its own facts. Four models (fct_events, fct_progress, fct_payments, dim_date) had zero
+consumers; the stitching int had one. Tom's verdict: "adding extra complexity for no reason."
+Correct. Cut to 9 models, every one with a consumer. Facts/dims return the day Evidence or the
+MCP door actually consumes them — built on camera, as a curriculum module, not silently as shelf-ware.
+
+**Lesson:** pattern-matching to "best practice" architecture is a form of AI hallucination too —
+the org-chart of a big warehouse imposed on a one-course platform. The consumer test
+(who reads this model?) beats the pattern every time. Human simplicity instinct: 3, AI architecture: 0.

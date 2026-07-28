@@ -26,7 +26,7 @@ orchestration/.dagster_home/
 orchestration/storage/
 
 # dlt
-ingestion/.dlt/secrets.toml
+.dlt/secrets.toml
 ingestion/_storage/
 
 # evidence / node
@@ -45,4 +45,4 @@ prior-testing/dbt-ducklake/target/
 data/
 
 prior-testing/
-uv.lock
+**/Notes/

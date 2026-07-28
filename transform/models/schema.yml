@@ -1,0 +1,18 @@
+version: 2
+
+models:
+  - name: int_sessions
+    description: One row per session (browser identity). Foundation of traffic numbers.
+    columns:
+      - name: session_id
+        tests: [unique, not_null]
+  - name: dim_student
+    description: One row per student. Attributes only.
+    columns:
+      - name: student_id
+        tests: [unique, not_null]
+  - name: mart_conversion_drivers
+    description: One row per student — features + converted flag.
+    columns:
+      - name: student_id
+        tests: [unique, not_null]

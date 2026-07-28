@@ -1,0 +1,11 @@
+name: "transform"
+profile: "transform"
+
+model-paths: ["models"]
+
+models:
+  transform:
+    +database: lake
+    stagging:     { +materialized: view }
+    intermediate: { +materialized: view }
+    marts:        { +materialized: table, +schema: marts }

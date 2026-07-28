@@ -1,0 +1,12 @@
+transform:
+  target: lakehouse
+  outputs:
+    lakehouse:
+      type: duckdb
+      path: "{{env_var('LAKE_SCRATCH')}}"
+      schema: analytics
+      extensions:
+        - ducklake
+      attach:
+        - path: "ducklake:{{env_var('LAKE_CATALOG')}}"
+          alias: lake
