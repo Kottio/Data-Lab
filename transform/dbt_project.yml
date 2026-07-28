@@ -6,6 +6,6 @@ model-paths: ["models"]
 models:
   transform:
     +database: lake
-    stagging:     { +materialized: view }
+    staging: { +materialized: view }
     intermediate: { +materialized: view }
-    marts:        { +materialized: table, +schema: marts }
+    marts: { +materialized: table, +schema: marts }

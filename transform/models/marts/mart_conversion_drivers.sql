@@ -3,7 +3,8 @@
 with lessons as (
     select student_id,
            count(distinct lesson_id)              as lessons_viewed,
-           count(*) filter (where completed)      as lessons_completed
+           count(*) filter (where completed)      as lessons_completed,
+           min(created_at)                        as first_lesson_at   -- the activation moment
     from {{ ref('stg_progress') }}
     group by student_id
 ),
@@ -11,7 +12,6 @@ dash as (
     select user_id, count(*) as dash_access
     from {{ ref('stg_events') }}
     where event_name = 'dashboard'
-    -- TODO is_activated: exclude the automatic post-signup visit (definition pending)
     group by user_id
 ),
 pay as (
@@ -29,6 +29,10 @@ select
     d.acquisition_source,
     coalesce(da.dash_access, 0)        as dash_access,
     coalesce(l.lessons_viewed, 0)      as lessons_viewed,
+    l.first_lesson_at,
+    l.first_lesson_at is not null      as is_activated,        -- activated = viewed >= 1 lesson
+    l.first_lesson_at is not null
+      and l.first_lesson_at <= d.signed_up_at + interval 7 day as activated_within_7d,
     p.first_payment_at is not null     as converted,
     p.first_payment_at,
     coalesce(p.total_paid, 0)          as total_paid
