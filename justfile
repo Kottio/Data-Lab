@@ -29,13 +29,15 @@ publish:
 # Run the Evidence dev server (after: just publish)
 dashboard:
     cd dashboard && npm run sources && npm run dev
-
-    dbt run --project-dir transform
     
 transform: 
+        dbt run --project-dir transform
+
 transform-debug: 
     dbt debug --project-dir transform
 
+dagster: 
+    uv run dagster dev -f orchestration/definitions.py
 
 # Full rebuild: nuke lake, reset cursors, re-ingest from Neon (PII policy changes require this)
 rebuild:

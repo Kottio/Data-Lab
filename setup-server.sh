@@ -18,4 +18,3 @@ curl -fsSL https://public.cdn.getdbt.com/fs/install/install.sh | sh
 
 #evidence.dev dashboard
 npx degit evidence-dev/template dashboard --force
-cd dashboard && npm install

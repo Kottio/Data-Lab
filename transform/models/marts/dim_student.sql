@@ -23,5 +23,5 @@ select
          when f.from_bridge is not null then 'other'
          else 'unknown' end                                 as acquisition_source
 from {{ ref('stg_students') }} s
-left join {{ ref('stg_enrollements') }} e on e.student_id = s.student_id
+left join {{ ref('stg_enrollments') }} e on e.student_id = s.student_id
 left join first_session f on f.user_id = s.user_id and f.rn = 1
