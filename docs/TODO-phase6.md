@@ -155,3 +155,59 @@ git commit -m "chore: justfile recipes (transform runs dbt build)"
   real blast radius.
 
 **Done when** `git status` is clean and the password is rotated.
+
+---
+
+## 4. Dagster — finish phase 4 (added later, same delete-when-done rule)
+
+Code changes are **yours to apply** — proposals live in the chat, nothing was
+written to the repo.
+
+### 4a. Point Dagster at Fusion (the `Could not find adapter type duckdb!` fix)
+
+dbt-core (pulled in by dagster-dbt) lands a `dbt` stub in `.venv/bin` that
+shadows the Fusion binary. Fix in `orchestration/definitions.py`:
+
+```python
+dbt_executable=os.environ.get("DBT_EXECUTABLE", "dbt")   # on DbtCliResource
+```
+
+plus in `.env`: `DBT_EXECUTABLE=<output of `which dbt` with venv NOT active>`.
+While in the file: remove the two blank lines between `@dbt_assets` and `def`.
+
+**Done when** a materialize from the Dagster UI runs Fusion and the marts build.
+
+### 4b. justfile recipe
+
+```
+# Dagster UI (assets graph). Close `just lakehouse` / Evidence first — file lock.
+dagster:
+    uv run dagster dev -f orchestration/definitions.py
+```
+
+### 4c. Wire dlt as assets (turns the five grey `lake/*` boxes real)
+
+1. Refactor `ingestion/postgres_dlt.py`: extract `create_source()` and
+   `create_pipeline()`, keep `load_select_tables_from_database()` calling them
+   so `just ingest` still works. Hints unchanged.
+2. In `definitions.py`: `@dlt_assets(dlt_source=..., dlt_pipeline=...,
+   dagster_dlt_translator=LakeTranslator())` + `DagsterDltResource()` (no config
+   — dlt reads its own env vars, which `dagster dev` loads from `.env`).
+3. `LakeTranslator` maps each resource to `AssetKey(["lake", <table>])` so the
+   keys match dbt's sources — matching keys IS the join.
+
+**Done when** the graph runs end to end: Postgres → lake/* → staging → marts.
+
+### 4d. Then: schedule + freshness check
+
+Needs the daemon (`dagster dev` runs it; droplet needs it as its own process).
+
+### 4e. Notes for later (droplet, phase 8 — don't do now)
+
+- `DAGSTER_HOME` on persistent disk or run history is lost on restart.
+- Daemon + webserver = two processes; env via systemd `EnvironmentFile`, not `.env`.
+- Two lakes (dev/prod) → dlt named destinations (`DESTINATION__LAKE_PROD__...`).
+- Singular dbt tests with multiple deps need an asset key in `meta:` or Dagster
+  downgrades them to observations (concerns the two tests in item 1).
+- When a new dbt model doesn't appear in Dagster: stale manifest — add
+  `dbt_project.prepare_if_dev()` in `definitions.py`.

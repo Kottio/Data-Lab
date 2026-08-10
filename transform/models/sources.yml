@@ -4,7 +4,27 @@ sources:
     schema: raw
     tables:
       - name: students
+        config:
+          meta:
+            dagster:
+              asset_key: ["dlt_sql_database_students"]
       - name: progress
+        config:
+          meta:
+            dagster:
+              asset_key: ["dlt_sql_database_progress"]
       - name: event
+        config:
+          meta:
+            dagster::
+              asset_key: ["dlt_sql_database_event"]
       - name: enrollments
+        config:
+          meta:
+            dagster:
+              asset_key: ["dlt_sql_database_enrollments"]
       - name: payments
+        config:
+          meta:
+            dagster:
+              asset_key: ["dlt_sql_database_payments"]

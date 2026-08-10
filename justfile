@@ -39,7 +39,6 @@ transform-debug:
 dagster: 
     uv run dagster dev -f orchestration/definitions.py
 
-# Full rebuild: nuke lake, reset cursors, re-ingest from Neon (PII policy changes require this)
 rebuild:
     rm -rf data
     ./infra/ducklake-setup.sh
