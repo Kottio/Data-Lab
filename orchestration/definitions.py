@@ -37,11 +37,9 @@ dbt_project = DbtProject(
 
 @dbt_assets( manifest=dbt_project.manifest_path)
 
-
 def transform_assets(context, dbt: DbtCliResource):
     """One Dagster asset per dbt model, dependencies read from manifest.json."""
     yield from dbt.cli(["build"], context=context).stream()
-
 
 daily_job = define_asset_job(
     "daily_pipeline",
@@ -50,7 +48,7 @@ daily_job = define_asset_job(
 
 daily_schedule = ScheduleDefinition(
     job=daily_job,
-    cron_schedule="0 6 * * *",            # every day 06:00
+    cron_schedule="30 18 * * *",            # every day 06:00
     execution_timezone="Europe/Paris",    # otherwise cron is interpreted in UTC
     default_status=DefaultScheduleStatus.RUNNING,
 )

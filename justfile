@@ -31,13 +31,24 @@ dashboard:
     cd dashboard && npm run sources && npm run dev
     
 transform: 
-        dbt run --project-dir transform
+    dbt run --project-dir transform
 
 transform-debug: 
     dbt debug --project-dir transform
 
-dagster: 
+dagster-dev: 
     uv run dagster dev -f orchestration/definitions.py
+
+# Prod-like Dagster: webserver + daemon as separate processes (like the droplet).
+dagster:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    export DAGSTER_HOME="$HOME/.dagster_home"
+    mkdir -p "$DAGSTER_HOME"
+    uv run dagster-daemon run &
+    trap 'kill %1 2>/dev/null' EXIT
+    uv run dagster-webserver -w workspace.yaml
+
 
 rebuild:
     rm -rf data

@@ -7,6 +7,7 @@ dependencies = [
     "dagster-dlt>=0.29.15",
     "dagster-webserver>=1.13.15",
     "dlt[ducklake,postgres,sql-database]>=1.29.0",
+    "mcp[cli]>=2.1.1",
     "pandas>=3.0.3",
 ]
 
