@@ -26,8 +26,7 @@ def revenue_weekly(last_n_weeks: int = 8) -> list[dict]:
       paying_students - distinct students who paid
       revenue         - gross revenue in EUR
 
-    Caveat: amounts are assumed to be cents at the source (unconfirmed
-    against Stripe) - treat absolute revenue as provisional.
+    Caveat: amounts are assumed to be cents at the source - treat absolute revenue as provisional.
     Data is a daily snapshot, not live.
     """
     with duckdb.connect(str(VITRINE), read_only=True) as con:
@@ -43,7 +42,6 @@ def revenue_weekly(last_n_weeks: int = 8) -> list[dict]:
         )
         cols = [d[0] for d in cur.description]
         return [dict(zip(cols, row)) for row in cur.fetchall()]
-
 
 @mcp.tool()
 def traffic_weekly(last_n_weeks: int = 8) -> list[dict]:

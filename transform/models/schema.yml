@@ -6,18 +6,60 @@ models:
     columns:
       - name: session_id
         tests: [unique, not_null]
+
   - name: dim_student
     description: One row per student. Attributes only.
     columns:
       - name: student_id
         tests: [unique, not_null]
+      - name: acquisition_source
+        tests:
+          - accepted_values:
+              values: ["tik_tok", "other", "unknown"]
+
   - name: mart_conversion_drivers
     description: One row per student — features + converted flag.
     columns:
       - name: student_id
         tests: [unique, not_null]
+
   - name: mart_revenue_weekly
     description: One row per payment week — the revenue scoreboard (Q6).
     columns:
       - name: payment_week
+        tests: [unique, not_null]
+
+  - name: stg_students
+    description: 1:1 source students. Grain - one row per student.
+    columns:
+      - name: student_id
+        tests: [unique, not_null]
+
+  - name: stg_enrollments
+    description: 1:1 source enrollments.
+    columns:
+      - name: enrollment_id
+        tests: [unique, not_null]
+
+  - name: stg_payments
+    description: 1:1 source payments.
+    columns:
+      - name: payment_id
+        tests: [unique, not_null]
+      - name: student_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_students')
+              field: student_id
+  - name: stg_progress
+    description: 1:1 source progress.
+    columns:
+      - name: progress_id
+        tests: [unique, not_null]
+
+  - name: stg_events
+    description: 1:1 source event. Append-only - unique event_id guards idempotency.
+    columns:
+      - name: event_id
         tests: [unique, not_null]

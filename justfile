@@ -20,7 +20,7 @@ xray:
 
 # Run ingestion (Neon -> lake; credentials & catalog from .env)
 ingest:
-    uv run python ingestion/postgres_dlt.py
+    uv run python -m ingestion.postgres_dlt
 
 # Publish marts -> plain duckdb file for Evidence (the "shop window")
 publish:
@@ -54,4 +54,4 @@ rebuild:
     rm -rf data
     ./infra/ducklake-setup.sh
     uv run dlt pipeline dba_ingest drop
-    uv run python ingestion/postgres_dlt.py
+    uv run python -m ingestion.postgres_dlt

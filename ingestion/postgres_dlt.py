@@ -1,6 +1,7 @@
 # flake8: noqa
 import dlt
 from dlt.sources.sql_database import sql_database
+from ingestion.hashmap import scrub_properties
 
 def build_source() -> None:
     source = sql_database().with_resources("students", "event", "progress", "enrollments", "payments" )
@@ -12,6 +13,8 @@ def build_source() -> None:
     source.event.apply_hints(
         incremental=dlt.sources.incremental("created_at"),
         write_disposition='append')
+
+    source.event.add_map(scrub_properties) 
     
     source.progress.apply_hints(
         incremental=dlt.sources.incremental("updated_at"),
